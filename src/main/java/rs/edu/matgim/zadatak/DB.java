@@ -56,7 +56,7 @@ public class DB {
         String upit="Update Racun Set Stanje=Stanje+? Where IdRac=?";
        PreparedStatement ps=conn.prepareStatement(upit);
        conn.setAutoCommit(false);
-       if(!(nesto(idRacFrom,sum))) return false;
+       if(!(nesto(idRacFrom,sum))) {System.out.println("Uspesna realizacija");return false;}
        ps.setDouble(1, sum);
        ps.setInt(2, idRacFrom);
        ps.executeUpdate();

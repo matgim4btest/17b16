@@ -9,7 +9,7 @@ public class Program {
         DB _db = new DB();
         _db.printPositiveRacun();
         
-          bollean x=_db.zadatak(1, 2, (float) 1.4);
+         _db.zadatak(1, 2, (float) 1.4);
         
     }
 }

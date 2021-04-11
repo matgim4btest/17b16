@@ -7,9 +7,10 @@ public class Program {
     public static void main(String[] args) throws SQLException {
 
         DB _db = new DB();
+        _db.menjaj();
         _db.printPositiveRacun();
         
-         _db.zadatak(1, 2, (float) 1.4);
+        // _db.zadatak(1, 2, (float) 1.4);
         
     }
 }

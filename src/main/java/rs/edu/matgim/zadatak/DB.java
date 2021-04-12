@@ -42,17 +42,44 @@ public class DB {
     }
 
     
-       void menjaj() throws SQLException
-       {             try ( Connection conn = DriverManager.getConnection(connectionString);Statement s = conn.createStatement() ){
-             ResultSet rs1=s.executeQuery("SELECT Max(IdSta) FROM Stavka");
-        int m=rs1.getInt(1)+1;
-        System.out.println(m);
+       void menjaj(int x) throws SQLException
+       {          try ( Connection conn = DriverManager.getConnection(connectionString);  Statement s = conn.createStatement()){
+               PreparedStatement ps=conn.prepareStatement("SELECT Max(RedBroj)+1 FROM Stavka WHERE IdRac = ? ");
+               ps.setInt(1, x);
+               ResultSet rs=ps.executeQuery();
+        int m1=rs.getInt(1);
+        System.out.print(m1);
        }
        };
+       
+   void stavka() throws SQLException
+   {
+        try ( Connection conn = DriverManager.getConnection(connectionString);  Statement s = conn.createStatement();  Statement s1 = conn.createStatement()){
+       PreparedStatement ps=conn.prepareStatement("INSERT INTO Stavka (IdSta, RedBroj, Datum, Vreme, Iznos, IdRac, IdFil) VALUES (?,?,?,?,?,?,?)");   
+        ResultSet rs=s.executeQuery("SELECT MAX(IdSta)+1 FROM Stavka");
+        int m=rs.getInt(1);
+        ps.setInt(1,m);
+        ResultSet rs1=s1.executeQuery("SELECT BrojStavki FROM RACUN WHERE IdRac=2");
+        int m1=rs1.getInt(1)+1;
+        ps.setInt(2,m1);
+        SimpleDateFormat formatter1= new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date(System.currentTimeMillis());
+        ps.setString(3,formatter1.format(date));
+        SimpleDateFormat formatter= new SimpleDateFormat("HH:mm");
+        ps.setString(4,formatter.format(date) );
+        ps.setFloat(5,2000);
+        ps.setInt(6,1);
+        ps.setInt(7, 2);
+        ps.execute();
+        PreparedStatement ps4=conn.prepareStatement("INSERT INTO Uplata (IdSta,Osnov) VALUES (?,?)");
+        ps4.setInt(1,m);
+        ps4.setString(2,"Uplata na racun");
+        ps4.execute();
+   }}
     
     boolean zadatak(int idRacFrom, int idRacTo, int sum) throws SQLException 
     {
-        try ( Connection conn = DriverManager.getConnection(connectionString);  Statement s = conn.createStatement();Statement s1 = conn.createStatement();Statement s2=conn.createStatement();) {       
+        try ( Connection conn = DriverManager.getConnection(connectionString);  Statement s = conn.createStatement();  Statement s1 = conn.createStatement();  Statement s2 = conn.createStatement()) {       
             String upit1="SELECT Stanje,DozvMinus FROM RACUN WHERE IdRac=idRacTo";
         String upit="Update Racun Set Stanje=Stanje+? Where IdRac=?";
        PreparedStatement ps=conn.prepareStatement(upit);
@@ -70,17 +97,20 @@ public class DB {
               int y=rs.getInt(2);
             if(x>-y) {PreparedStatement ps1=conn.prepareStatement("UPDATE Racun SET STATUS='A' WHERE IdRac=idRac"); ps1.execute(); }
         PreparedStatement ps3=conn.prepareStatement("INSERT INTO Stavka (IdSta, RedBroj, Datum, Vreme, Iznos, IdRac, IdFil) VALUES (?,?,?,?,?,?,?)");   
-        ResultSet rs1=s1.executeQuery("SELECT MAX(IdSta)+1 FROM Stavka");
+        ResultSet rs1=s2.executeQuery("SELECT MAX(IdSta)+1 FROM Stavka");
         int m=rs1.getInt(1);
         ps3.setInt(1,m);
-        ResultSet rs2=s2.executeQuery("SELECT BrojStavki FROM RACUN WHERE IdRac=IdRacTo");
-        int m1=rs2.getInt(1)+1;
+        PreparedStatement kurac=conn.prepareStatement("SELECT Max(RedBroj)+1 FROM Stavka WHERE IdRac = ? ");
+        kurac.setInt(1,idRacTo);
+        ResultSet kuracnakvadrat=kurac.executeQuery();
+        int m1=kuracnakvadrat.getInt(1);
+       
         ps3.setInt(2,m1);
         SimpleDateFormat formatter1= new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date(System.currentTimeMillis());
         ps3.setString(3,formatter1.format(date));
         SimpleDateFormat formatter= new SimpleDateFormat("HH:mm");
-        ps3.setString(4,formatter1.format(date) );
+        ps3.setString(4,formatter.format(date) );
         ps3.setFloat(5,sum);
         ps3.setInt(6,1);
         ps3.setInt(7, idRacTo);
